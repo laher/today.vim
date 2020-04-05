@@ -51,19 +51,24 @@ function! todo#Split()
 endfunction
 
 function! todo#Refile()
-  let name = input('Move to file: ')
+  "let name = input('Move to file: ')
   execute 'delete t'
   execute 'w'
-  execute 'e '.name
-  normal! "tp
+  call fzf#run({'source': 'ls '.s:getDir(), 'sink': function('s:fzfSinkRefile'), 'left': '25%'})
 endfunction
 
 function! todo#FzTodo()
   call fzf#run({'source': 'ls '.s:getDir(), 'sink': function('s:fzfSink'), 'left': '25%'})
 endfunction
 
+function! s:fzfSinkRefile(arg)
+  execute 'e '. s:getFile(a:arg)
+  execute 2
+  normal! "tp
+  call feedkeys('A')
+endfunction
+
 function! s:fzfSink(arg)
-  echom a:arg
   execute 'e '. s:getFile(a:arg)
   " insert a new todo on second line
   call append(1, ' - [ ] ')

@@ -10,6 +10,6 @@ if !hasmapto('<Plug>TodoSplit', 'n')
    nmap <buffer> <Leader>T <Plug>TodoSplit
 endif
 
-command -nargs=0 -buffer TodoPrompt call todo#prompt()<cr>
-command -nargs=0 -buffer TodoSplit call todo#split()<cr>
-command -nargs=0 -buffer TodoRefile call todo#refile()<cr>
+command -nargs=0 -buffer TodoPrompt call todo#Prompt()<cr>
+command -nargs=0 -buffer TodoSplit call todo#Split()<cr>
+command -nargs=0 -buffer TodoRefile call todo#Refile()<cr>
