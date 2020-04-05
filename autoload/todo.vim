@@ -1,9 +1,9 @@
 
-function! todo#prompt()
+function! todo#Prompt()
   call s:ensureDir()
   let curfile = @%
   if curfile != 'inbox.md'
-    execute "split" s:getFile()
+    execute "split" s:getInbox()
   endif
   call inputsave()
   let name = input('Enter todo: ')
@@ -15,10 +15,14 @@ function! todo#prompt()
   endif
 endfunction
 
-function! s:getFile() abort     
-  return s:getDir() .'/inbox.md'
+function! s:getInbox() abort
+  return s:getFile('inbox.md')
 endfunction
-  
+
+function! s:getFile(name) abort
+  return s:getDir() .'/'.a:name
+endfunction
+
 function! s:getDir() abort
   let home = fnamemodify('~', ':p')
   echo 'home ' . home
@@ -32,10 +36,10 @@ function! s:ensureDir() abort
   endif
 endfunction
 
-function! todo#split()
+function! todo#Split()
   call s:ensureDir()
   if @% != 'inbox.md'
-    execute "split" s:getFile()
+    execute "split" s:getInbox()
     resize 5
   endif
   " insert a new todo on second line
@@ -46,7 +50,7 @@ function! todo#split()
   call feedkeys('A')
 endfunction
 
-function! todo#refile()
+function! todo#Refile()
   let name = input('Move to file: ')
   execute 'delete t'
   execute 'w'
@@ -54,9 +58,23 @@ function! todo#refile()
   normal! "tp
 endfunction
 
-" todo-todos
+function! todo#FzTodo()
+  call fzf#run({'source': 'ls '.s:getDir(), 'sink': function('s:fzfSink'), 'left': '25%'})
+endfunction
+
+function! s:fzfSink(arg)
+  echom a:arg
+  execute 'e '. s:getFile(a:arg)
+  " insert a new todo on second line
+  call append(1, ' - [ ] ')
+  " go to second line
+  execute 2
+  " enter insert mode at end of line
+  call feedkeys('A')
+endfunction
+
 " Find heading
-function! todo#moveToHeading()
+function! todo#MoveToHeading()
   let name = input('Move to heading: ')
   let [lnum, col] = searchpos('^#\+ ' . name, 'n')
   if (lnum > 0)
