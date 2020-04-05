@@ -48,9 +48,10 @@ endfunction
 
 function! todo#refile()
   let name = input('Move to file: ')
-  execute 'line delete'
+  execute 'delete t'
+  execute 'w'
   execute 'e '.name
-  execute 'p'
+  normal! "tp
 endfunction
 
 " todo-todos
