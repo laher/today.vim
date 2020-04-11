@@ -2,7 +2,7 @@
 function! today#Prompt()
   call s:ensureDir()
   let curfile = @%
-  if curfile != 'inbox.md'
+  if curfile != 'today.md'
     execute "split" s:getInbox()
   endif
   call inputsave()
@@ -10,13 +10,13 @@ function! today#Prompt()
   call inputrestore()
   " insert a new todo on second line
   call append(1, ' - [ ] ' . name)
-  if curfile != 'inbox.md'
+  if curfile != 'today.md'
     hide
   endif
 endfunction
 
 function! s:getInbox() abort
-  return s:getFile('inbox.md')
+  return s:getFile('today.md')
 endfunction
 
 function! s:getFile(name) abort
@@ -38,7 +38,7 @@ endfunction
 
 function! today#Split()
   call s:ensureDir()
-  if @% != 'inbox.md'
+  if @% != 'today.md'
     execute "split" s:getInbox()
     resize 5
   endif
