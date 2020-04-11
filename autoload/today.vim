@@ -1,5 +1,5 @@
 
-function! todo#Prompt()
+function! today#Prompt()
   call s:ensureDir()
   let curfile = @%
   if curfile != 'inbox.md'
@@ -26,7 +26,7 @@ endfunction
 function! s:getDir() abort
   let home = fnamemodify('~', ':p')
   echo 'home ' . home
-  return get(g:, 'todo_dir', home . '/todo')
+  return get(g:, 'today_dir', home . '/today')
 endfunction
 
 function! s:ensureDir() abort
@@ -36,7 +36,7 @@ function! s:ensureDir() abort
   endif
 endfunction
 
-function! todo#Split()
+function! today#Split()
   call s:ensureDir()
   if @% != 'inbox.md'
     execute "split" s:getInbox()
@@ -50,7 +50,7 @@ function! todo#Split()
   call feedkeys('A')
 endfunction
 
-function! todo#Rollover()
+function! today#Rollover()
   "let name = input('Move to file: ')
   " open archive file
   " open 'new inbox'
@@ -92,14 +92,14 @@ function! s:isArchive(line)
     return 0
 endfunction
 
-function! todo#Refile()
+function! today#Refile()
   "let name = input('Move to file: ')
   execute 'delete t'
   execute 'w'
   call fzf#run({'source': 'ls '.s:getDir(), 'sink': function('s:fzfSinkRefile'), 'left': '25%'})
 endfunction
 
-function! todo#FzTodo()
+function! today#FzTodo()
   call fzf#run({'source': 'ls '.s:getDir(), 'sink': function('s:fzfSink'), 'left': '25%'})
 endfunction
 
@@ -121,7 +121,7 @@ function! s:fzfSink(arg)
 endfunction
 
 " Find heading
-function! todo#MoveToHeading()
+function! today#MoveToHeading()
   let name = input('Move to heading: ')
   let [lnum, col] = searchpos('^#\+ ' . name, 'n')
   if (lnum > 0)
