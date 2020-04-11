@@ -50,6 +50,48 @@ function! todo#Split()
   call feedkeys('A')
 endfunction
 
+function! todo#Rollover()
+  "let name = input('Move to file: ')
+  " open archive file
+  " open 'new inbox'
+  let inbox_tmp = s:getDir() . "/inbox_tmp.md"
+  let archive_file = s:getDir() . "/archive.md" " todo: date filename
+
+  let s:lines = readfile(s:getInbox())
+  for s:line in s:lines
+    "echo s:line
+    if s:isBoth(s:line)
+      call appendbufline(inbox_tmp, '$', s:line)
+      call appendbufline(archive_file, '$', s:line)
+    elseif s:isRollover(s:line)
+      call appendbufline(inbox_tmp, '$', s:line)
+    else
+      call appendbufline(archive_file, '$', s:line)
+    endif
+  endfor
+endfunction
+
+function! s:isBoth(line)
+  if s:isRollover(a:line) && s:isArchive(a:line)
+    return 1
+  endif
+  return 0
+endfunction
+
+function! s:isRollover(line)
+    if a:line=~#"[ ]" || a:line=~#"[.]" || a:line=~#"] Daily"
+      return 1
+    endif
+    return 0
+endfunction
+
+function! s:isArchive(line)
+    if a:line=~#"[x]" || a:line=~#"[C]"
+      return 1
+    endif
+    return 0
+endfunction
+
 function! todo#Refile()
   "let name = input('Move to file: ')
   execute 'delete t'

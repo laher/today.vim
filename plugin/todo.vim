@@ -13,3 +13,4 @@ endif
 command -nargs=0 -buffer TodoPrompt call todo#Prompt()<cr>
 command -nargs=0 -buffer TodoSplit call todo#Split()<cr>
 command -nargs=0 -buffer TodoRefile call todo#Refile()<cr>
+command -nargs=0 -buffer TodoRollover call todo#Rollover()<cr>
