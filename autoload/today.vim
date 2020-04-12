@@ -1,9 +1,62 @@
 
+let s:config = {}
+
+function! today#GetConfig()
+  if s:config == {}
+    call s:loadConfig()
+  endif
+  return s:config
+endfunction
+
+function! s:loadConfig()
+  let l:cmd = printf('today config')
+  let l:out = system(l:cmd)
+  if v:shell_error != 0
+    call s:handle_errors(l:out)
+  endif
+
+  silent! let result = json_decode(l:out)
+
+  " We want to output the error message in case the result isn't a JSON
+  if type(result) != type({})
+    call s:handle_errors(l:out)
+    return
+  endif
+  let s:config = result
+  return result
+endfunction
+
+function! s:getToday() abort
+  return today#GetConfig().today
+endfunction
+
+function! s:getFile(name) abort
+  return today#GetConfig().base . '/' . a:name
+endfunction
+
+function! s:getDir() abort
+  return today#GetConfig().base 
+endfunction
+
+function! s:ensureDir() abort
+  let dir = s:getDir()
+  if !isdirectory(dir)
+      call mkdir(dir, "p")
+  endif
+endfunction
+
+function! today#Open()
+  call s:ensureDir()
+  if @% != 'today.md'
+    execute "e" s:getToday()
+  endif
+endfunction
+
 function! today#Prompt()
   call s:ensureDir()
   let curfile = @%
   if curfile != 'today.md'
-    execute "split" s:getInbox()
+    execute "split" s:getToday()
   endif
   call inputsave()
   let name = input('Enter todo: ')
@@ -15,32 +68,10 @@ function! today#Prompt()
   endif
 endfunction
 
-function! s:getInbox() abort
-  return s:getFile('today.md')
-endfunction
-
-function! s:getFile(name) abort
-  return s:getDir() .'/'.a:name
-endfunction
-
-function! s:getDir() abort
-  let home = fnamemodify('~', ':p')
-  echo 'home ' . home
-  return get(g:, 'today_dir', home . '/today')
-endfunction
-
-function! s:ensureDir() abort
-  let dir = s:getDir()
-  if !isdirectory(dir)
-      call mkdir(dir, "p")
-  endif
-endfunction
-
 function! today#Split()
   call s:ensureDir()
   if @% != 'today.md'
-    execute "split" s:getInbox()
-    resize 5
+    execute "split" s:getToday()
   endif
   " insert a new todo on second line
   call append(1, ' - [ ] ')
@@ -127,4 +158,30 @@ function! s:install_binary(update)
   endif
   let argv += [ '-v', today_addr]
   call today#exec#run_maybe_async(argv)
+endfunction
+
+
+function! s:handle_errors(content) abort
+  let l:lines = split(a:content, '\n')
+  let l:errors = []
+  for l:line in l:lines
+    let l:tokens = matchlist(l:line, '^\(.\{-}\):\(\d\+\):\(\d\+\)\s*\(.*\)')
+    if empty(l:tokens)
+      continue
+    endif
+    call add(l:errors,{
+          \'filename': l:tokens[1],
+          \'lnum':     l:tokens[2],
+          \'col':      l:tokens[3],
+          \'text':     l:tokens[4],
+          \ })
+  endfor
+
+  if len(l:errors)
+    call setloclist(0, l:errors, 'r')
+    call setloclist(0, [], 'a', {'title': 'Format'})
+    lopen
+  else
+    echomsg join(l:lines, "\n")
+  endif
 endfunction
