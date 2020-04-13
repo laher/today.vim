@@ -6,6 +6,7 @@ command -nargs=0 TodayRefile call today#Refile()
 command -nargs=0 TodayInstall call today#exec#Install()
 command -nargs=0 TodayUpdate call today#exec#Update()
 command -nargs=0 TodayFuzzy call today#FzTodo()
+command -nargs=0 TodayNewFile call today#NewFile()
 
 nnoremap <buffer> <silent> <Plug>TodayPrompt :call today#Prompt()<cr>
 nnoremap <buffer> <silent> <Plug>TodaySplit :call today#Split()<cr>
@@ -24,6 +25,7 @@ if &rtp =~ 'fzm.vim'
   call fzm#Add('Today: Split', {'exec': 'call today#Split()'})
   call fzm#Add('Today: Rollover', {'exec': 'call today#Rollover()'})
   call fzm#Add('Today: Refile', {'exec': 'call today#Refile()', 'mode': 'insert', 'for': 'md'})
-  call fzm#Add('Today: Chooser', {'exec': 'call today#FzTodo()', 'mode': 'insert'})
+  call fzm#Add('Today: File Chooser', {'exec': 'call today#FzTodo()', 'mode': 'insert'})
+  call fzm#Add('Today: New File', {'exec': 'call today#NewFile()', 'mode': 'insert'})
 endif
 

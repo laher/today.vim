@@ -98,6 +98,22 @@ function! today#Rollover()
   execute ":e" s:getToday()
 endfunction
 
+function! today#NewFile()
+  call inputsave()
+  let name = input('New file name: ')
+  call inputrestore()
+  if name == ""
+    return 
+  endif
+  let fname = name
+  if name !~ '\.md$'
+    let fname .= '.md'
+  endif
+  echom '\rname: ' . name
+  execute ':e ' . s:getDir()  . '/' . fname
+  execute 'normal! i# '. name . "\n\n - [ ] "
+endfunction
+
 function! today#Refile()
   " delete to the 't' register
   execute 'delete t'
