@@ -50,6 +50,8 @@ function! today#Open()
   if @% != 'today.md'
     execute "e" s:getToday()
   endif
+  call s:insertInboxTodo('')
+  call feedkeys('A')
 endfunction
 
 function! today#Prompt()
@@ -59,13 +61,22 @@ function! today#Prompt()
     execute "split" s:getToday()
   endif
   call inputsave()
-  let name = input('Enter todo: ')
+  let todo = input('Enter todo: ')
   call inputrestore()
-  " insert a new todo on second line
-  call append(1, ' - [ ] ' . name)
+  call s:insertInboxTodo(todo)
   if curfile != 'today.md'
+    execute 'w'
     hide
   endif
+endfunction
+
+function! s:insertTodoInHeading(heading, todo) 
+  " insert a new todo
+  execute "normal! gg/".a:heading."\<cr>jj^i- [ ] ".a:todo."\<cr>\<esc>k"
+endfunction
+
+function! s:insertInboxTodo(todo) 
+  call s:insertTodoInHeading('# Inbox', a:todo)
 endfunction
 
 function! today#Split()
@@ -73,11 +84,7 @@ function! today#Split()
   if @% != 'today.md'
     execute "split" s:getToday()
   endif
-  " insert a new todo on second line
-  call append(1, ' - [ ] ')
-  " go to second line
-  execute 2
-  " enter insert mode at end of line
+  call s:insertInboxTodo(todo)
   call feedkeys('A')
 endfunction
 
@@ -88,11 +95,11 @@ function! today#Rollover()
     call s:handle_errors(l:out)
   endif
 
-  execute ":e"
+  execute ":e" s:getToday()
 endfunction
 
 function! today#Refile()
-  "let name = input('Move to file: ')
+  " delete to the 't' register
   execute 'delete t'
   execute 'w'
   call fzf#run({'source': 'ls '.s:getDir(), 'sink': function('s:fzfSinkRefile'), 'left': '25%'})
@@ -104,17 +111,18 @@ endfunction
 
 function! s:fzfSinkRefile(arg)
   execute 'e '. s:getFile(a:arg)
-  execute 2
+  execute 3
+  " paste from the 't' register - see today#Refile()
   normal! "tp
   call feedkeys('A')
 endfunction
 
 function! s:fzfSink(arg)
   execute 'e '. s:getFile(a:arg)
-  " insert a new todo on second line
-  call append(1, ' - [ ] ')
-  " go to second line
-  execute 2
+  " insert a new todo on third line
+  call append(2, ' - [ ] ')
+  " go to third line
+  execute 3
   " enter insert mode at end of line
   call feedkeys('A')
 endfunction
@@ -130,34 +138,22 @@ function! today#MoveToHeading()
     echo 'not found'
   endif
 endfunction
-" Refile
-" Tagging
-"
-"
-function! TodoM()
+
+" find headings
+function! today#ChooseHeading()
   let b:lines=[]
-  while matchstr('^#\+ ', 'n')
-    call add(b:lines, m)
+  let flags = "cW"
+  norm! gg
+  while search("^#", flags) != 0
+      call add(b:lines, getline("."))
+      let flags = "W"
   endwhile
-  call fzf#vim#complete(b:lines)
+  call fzf#run({'source': b:lines, 'sink': function('s:fzfSinkHeading'), 'left': '25%'})
 endfunction
 
-function! today#Update()
-  call s:install_binary(1)
-endfunction
-
-function! today#Install()
-  call s:install_binary(0)
-endfunction
-
-function! s:install_binary(update)
-  let today_addr = 'github.com/laher/today'
-  let argv = ['go', 'get']
-  if a:update
-    call add(argv, '-u')
-  endif
-  let argv += [ '-v', today_addr]
-  call today#exec#run_maybe_async(argv)
+function! s:fzfSinkHeading(arg)
+  echom 'heading: '. a:arg
+  call s:insertTodoInHeading(a:arg, ' -  [ ] ')
 endfunction
 
 
