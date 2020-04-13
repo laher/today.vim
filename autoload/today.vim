@@ -1,5 +1,6 @@
 
 let s:config = {}
+let s:todo_states = [' ', 'i', 'x', 'p', 'c']
 
 function! today#GetConfig()
   if s:config == {}
@@ -9,7 +10,7 @@ function! today#GetConfig()
 endfunction
 
 function! s:loadConfig()
-  let l:cmd = printf('today config')
+  let l:cmd = 'today config'
   let l:out = system(l:cmd)
   if v:shell_error != 0
     call s:handle_errors(l:out)
@@ -24,6 +25,34 @@ function! s:loadConfig()
   endif
   let s:config = result
   return result
+endfunction
+
+function! today#Toggle()
+  let line = getline('.')
+
+  if(match(line, '\[.\]') != -1)
+    let states = copy(s:todo_states)
+    for state in states
+      if(match(line, '\[' . escape(state, '\') . '\]') != -1)
+        let next_state = states[0]
+        if index(states, state) < len(states) - 1
+          let next_state = states[index(states, state) + 1]
+        endif
+        echo printf('state transition: %s => %s', state, next_state)
+        let line = substitute(line, '\[' . escape(state, '\') . '\]', '[' . next_state . ']', '')
+        break
+      endif
+    endfor
+    call setline('.', line)
+  endif
+endf
+
+function! today#Init()
+  let l:cmd = 'today init'
+  let l:out = system(l:cmd)
+  if v:shell_error != 0
+    call s:handle_errors(l:out)
+  endif
 endfunction
 
 function! s:getToday() abort

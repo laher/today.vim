@@ -44,14 +44,34 @@ Plug 'prabirshrestha/async.vim'
 Plug 'laher/today.vim', { 'do': ':TodayUpdate' }
 ```
 
-## Refiling entries
+## Usage 
 
-To refile an entry into `g:today_dir` . '/appointments.md'.
+... _todo_
 
-```
-:TodayRefile appointments
-```
+## Features
 
-## Config
+Globally available features
 
-Directory for todo files: `g:today_dir='~/today'`
+| Feature         | Done     | Function       | Notes                 |
+|-----------------|----------|----------------|-----------------------|
+| Install/Update  | [x]      | :TodayInstall  | |
+| Init            | [x]      | :TodayInit     | `today init`. TODO: Automatic?? |
+| Open today.md   | [x]      | :TodayOpen     | |
+| File Choose     | [x]      | :TodayFz       | |
+| New File        | [x]      | :TodayNewFile  | |
+| Prompt/split    | [x]      | :TodayPrompt   | |
+| Rollover        | [x]      | :TodayRollover | `today rollover`. Only supports 'daily' right now    |
+| fzm integration | [x]      |                | |
+| docs            | [ ]      |                | README _and_ vim help |
+| Scrape `TODO`s  | [ ]      | :TodayScrapeTodos | find TODOs in other files. Add them as items in today.md | 
+
+### Features available within a todo list
+
+Features available on .md files
+
+| Feature         | Done     | Function       | Notes                 |
+|-----------------|----------|----------------|-----------------------|
+| Refile          | [x]      | :TodayRefile   | |
+| Cycle Status    | [ ]      | :TodayCheck    | |
+| Insert date etc | [ ]      |                | |
+| Move to heading | [ ]      | :TodayMove     | |
