@@ -52,26 +52,32 @@ Plug 'laher/today.vim', { 'do': ':TodayUpdate' }
 
 Globally available features
 
-| Feature         | Done     | Function       | Notes                 |
+| Feature         | Done     | Command        | Notes                 |
 |-----------------|----------|----------------|-----------------------|
 | Install/Update  | [x]      | :TodayInstall  | |
 | Init            | [x]      | :TodayInit     | `today init`. TODO: Automatic?? |
-| Open today.md   | [x]      | :TodayOpen     | |
-| File Choose     | [x]      | :TodayFz       | |
+| Open a file     | [x]      | :TodayOpen     | (file chooser. focus on today.vim) |
 | New File        | [x]      | :TodayNewFile  | |
 | Prompt/split    | [x]      | :TodayPrompt   | |
 | Rollover        | [x]      | :TodayRollover | `today rollover`. Only supports 'daily' right now    |
 | fzm integration | [x]      |                | |
 | docs            | [ ]      |                | README _and_ vim help |
-| Scrape `TODO`s  | [ ]      | :TodayScrapeTodos | find TODOs in other files. Add them as items in today.md | 
+| Scrape `TODO`s  | [ ]      | :TodayScrape   | find TODOs in other files. Add them as items in today.md | 
 
 ### Features available within a todo list
 
 Features available on .md files
 
-| Feature         | Done     | Function       | Notes                 |
+| Feature         | Done     | Command        | Notes                 |
 |-----------------|----------|----------------|-----------------------|
-| Refile          | [x]      | :TodayRefile   | |
-| Cycle Status    | [ ]      | :TodayCheck    | |
-| Insert date etc | [ ]      |                | |
-| Move to heading | [ ]      | :TodayMove     | |
+| Refile          | [x]      | :TodayRefile   | <LocalLeader>r        |
+| Cycle Status    | [ ]      | :TodayToggle   | <LocalLeader>s        |
+| Done            | [ ]      | :TodayDone     | <LocalLeader>x        |
+| Insert a todo   | [ ]      | :TodayTodo     | <LocalLeader>t        |
+| Move to heading | [ ]      | :TodayMove     | <LocalLeader>m        |
+| Move dn/up      | [ ]      | :TodayDn/Up    | <LocalLeader>j/k |
+| Insert date etc | [ ]      |                | <LocalLeader>d |
+| LocalLeader maps| [ ]      |                | |
+| tags            | [ ]      |                | | 
+| focus on tags   | [ ]      |                | syntax/folding/? |
+| Postpone        | [ ]      |                | postpone |

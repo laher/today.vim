@@ -2,14 +2,14 @@
 let s:config = {}
 let s:todo_states = [' ', 'i', 'x', 'p', 'c']
 
-function! today#GetConfig()
+function! today#GetConfig() abort
   if s:config == {}
     call s:loadConfig()
   endif
   return s:config
 endfunction
 
-function! s:loadConfig()
+function! s:loadConfig() abort
   let l:cmd = 'today config'
   let l:out = system(l:cmd)
   if v:shell_error != 0
@@ -27,7 +27,7 @@ function! s:loadConfig()
   return result
 endfunction
 
-function! today#Toggle()
+function! today#Toggle() abort
   let line = getline('.')
 
   if(match(line, '\[.\]') != -1)
@@ -47,7 +47,20 @@ function! today#Toggle()
   endif
 endf
 
-function! today#Init()
+function! today#Done() abort
+  call today#Set('x')
+endfunction
+
+function! today#Set(state) abort
+  let line = getline('.')
+
+  if(match(line, '\[.\]') != -1)
+    let line = substitute(line, '\[.\]', '[' . a:state . ']', '')
+    call setline('.', line)
+  endif
+endfunction
+
+function! today#Init() abort
   let l:cmd = 'today init'
   let l:out = system(l:cmd)
   if v:shell_error != 0
@@ -74,7 +87,7 @@ function! s:ensureDir() abort
   endif
 endfunction
 
-function! today#Open()
+function! today#Open() abort
   call s:ensureDir()
   if @% != 'today.md'
     execute "e" s:getToday()
@@ -83,7 +96,7 @@ function! today#Open()
   call feedkeys('A')
 endfunction
 
-function! today#Prompt()
+function! today#Prompt() abort
   call s:ensureDir()
   let curfile = @%
   if curfile != 'today.md'
@@ -99,16 +112,26 @@ function! today#Prompt()
   endif
 endfunction
 
-function! s:insertTodoInHeading(heading, todo) 
+function! today#Add(todo)  abort
+  call s:insertTodoUnderCursor(a:todo)
+  call feedkeys('A')
+endfunction
+
+function! s:insertTodoUnderCursor(todo)  abort
+  " insert a new todo
+  execute "normal! ^i- [ ] ".a:todo."\<cr>\<esc>k"
+endfunction
+
+function! s:insertTodoInHeading(heading, todo)  abort
   " insert a new todo
   execute "normal! gg/".a:heading."\<cr>jj^i- [ ] ".a:todo."\<cr>\<esc>k"
 endfunction
 
-function! s:insertInboxTodo(todo) 
+function! s:insertInboxTodo(todo)  abort
   call s:insertTodoInHeading('# Inbox', a:todo)
 endfunction
 
-function! today#Split()
+function! today#Split() abort
   call s:ensureDir()
   if @% != 'today.md'
     execute "split" s:getToday()
@@ -117,8 +140,8 @@ function! today#Split()
   call feedkeys('A')
 endfunction
 
-function! today#Rollover()
-  let l:cmd = printf('today rollover')
+function! today#Rollover() abort
+  let l:cmd = 'today rollover'
   let l:out = system(l:cmd)
   if v:shell_error != 0
     call s:handle_errors(l:out)
@@ -127,7 +150,7 @@ function! today#Rollover()
   execute ":e" s:getToday()
 endfunction
 
-function! today#NewFile()
+function! today#NewFile() abort
   call inputsave()
   let name = input('New file name: ')
   call inputrestore()
@@ -143,18 +166,18 @@ function! today#NewFile()
   execute 'normal! i# '. name . "\n\n - [ ] "
 endfunction
 
-function! today#Refile()
+function! today#Refile() abort
   " delete to the 't' register
   execute 'delete t'
   execute 'w'
   call fzf#run({'source': 'ls '.s:getDir(), 'sink': function('s:fzfSinkRefile'), 'left': '25%'})
 endfunction
 
-function! today#FzTodo()
+function! today#FzTodo() abort
   call fzf#run({'source': 'ls '.s:getDir(), 'sink': function('s:fzfSink'), 'left': '25%'})
 endfunction
 
-function! s:fzfSinkRefile(arg)
+function! s:fzfSinkRefile(arg) abort
   execute 'e '. s:getFile(a:arg)
   execute 3
   " paste from the 't' register - see today#Refile()
@@ -162,7 +185,7 @@ function! s:fzfSinkRefile(arg)
   call feedkeys('A')
 endfunction
 
-function! s:fzfSink(arg)
+function! s:fzfSink(arg) abort
   execute 'e '. s:getFile(a:arg)
   " insert a new todo on third line
   call append(2, ' - [ ] ')
@@ -173,30 +196,31 @@ function! s:fzfSink(arg)
 endfunction
 
 " Find heading
-function! today#MoveToHeading()
-  let name = input('Move to heading: ')
-  let [lnum, col] = searchpos('^#\+ ' . name, 'n')
+function! today#Move() abort
+  "let headings = today#ChooseHeading()
+  let filename = expand('%:p') 
+  return fzf#run({'source': 'today headings '.filename, 'sink': function('s:fzfMoveToHeading'), 'left': '25%'})
+endfunction
+
+function! s:fzfMoveToHeading(heading) abort
+  echom 'heading: '. a:heading
+  let [lnum, col] = searchpos('^' . escape(a:heading, '\'), 'nw')
+  "echo 'moving to line ' . lnum
   if (lnum > 0)
-    execute 'm ' . lnum
+    execute 'm ' . (lnum+1)
   else
-    echo ''
-    echo 'not found'
+    echo 'wat: heading not found'
+    return
   endif
 endfunction
 
 " find headings
-function! today#ChooseHeading()
-  let b:lines=[]
-  let flags = "cW"
-  norm! gg
-  while search("^#", flags) != 0
-      call add(b:lines, getline("."))
-      let flags = "W"
-  endwhile
-  call fzf#run({'source': b:lines, 'sink': function('s:fzfSinkHeading'), 'left': '25%'})
+function! today#ChooseHeading() abort
+  let filename = expand('%:p') 
+  return fzf#run({'source': 'today headings '.filename, 'sink': function('s:fzfSinkHeading'), 'left': '25%'})
 endfunction
 
-function! s:fzfSinkHeading(arg)
+function! s:fzfSinkHeading(arg) abort
   echom 'heading: '. a:arg
   call s:insertTodoInHeading(a:arg, ' -  [ ] ')
 endfunction

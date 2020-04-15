@@ -8,9 +8,6 @@ command -nargs=0 TodayFuzzy call today#FzTodo()
 command -nargs=0 TodayNewFile call today#NewFile()
 command -nargs=0 TodayInit call today#Init()
 
-""" TODO: move these definitions into ftplugin/md/today.vim ?
-command -nargs=0 TodayRefile call today#Refile()
-command -nargs=0 TodayToggle call today#Toggle()
 
 nnoremap <buffer> <silent> <Plug>TodayPrompt :call today#Prompt()<cr>
 nnoremap <buffer> <silent> <Plug>TodaySplit :call today#Split()<cr>
