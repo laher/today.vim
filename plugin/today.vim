@@ -1,10 +1,10 @@
-command -nargs=0 Today call today#Open()
+command -nargs=0 Today call today#OpenToday()
 command -nargs=0 TodayPrompt call today#Prompt()
 command -nargs=0 TodaySplit call today#Split()
 command -nargs=0 TodayRollover call today#Rollover()
 command -nargs=0 TodayInstall call today#exec#Install()
 command -nargs=0 TodayUpdate call today#exec#Update()
-command -nargs=0 TodayFuzzy call today#FzTodo()
+command -nargs=0 TodayOpen call today#Open()
 command -nargs=0 TodayNewFile call today#NewFile()
 command -nargs=0 TodayInit call today#Init()
 
@@ -21,7 +21,8 @@ endif
 
 
 if &rtp =~ 'fzm.vim'
-  call fzm#Add('Today', {'exec': 'call today#Open()'})
+  call fzm#Add('Today', {'exec': 'call today#OpenToday()'})
+  call fzm#Add('Today: Open', {'exec': 'call today#Open()'})
   call fzm#Add('Today: Prompt', {'exec': 'call today#Prompt()'})
   call fzm#Add('Today: Split', {'exec': 'call today#Split()'})
   call fzm#Add('Today: Rollover', {'exec': 'call today#Rollover()'})

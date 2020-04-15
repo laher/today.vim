@@ -9,7 +9,7 @@ nmap <LocalLeader>x :call today#Done()<CR>
 nmap <LocalLeader>a :call today#Add("")<CR>
 nmap <LocalLeader>t :call today#Toggle()<CR>
 nmap <LocalLeader>m :call today#Move()<CR>
-nmap <LocalLeader>j :call today#Down()<CR>
-nmap <LocalLeader>k :call today#Up()<CR>
+nmap <LocalLeader>j :m .+1<CR>==
+nmap <LocalLeader>k :m .-2<CR>
 """ date heading
 nmap <LocalLeader>d i## <C-R>=strftime("%Y-%m-%d")<CR><CR><CR> - [ ]  

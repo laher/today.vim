@@ -1,6 +1,7 @@
 
 let s:config = {}
 let s:todo_states = [' ', 'i', 'x', 'p', 'c']
+let s:new_todo = ' - [ ] '
 
 function! today#GetConfig() abort
   if s:config == {}
@@ -87,13 +88,14 @@ function! s:ensureDir() abort
   endif
 endfunction
 
-function! today#Open() abort
+function! today#OpenToday() abort
   call s:ensureDir()
   if @% != 'today.md'
     execute "e" s:getToday()
   endif
-  call s:insertInboxTodo('')
-  call feedkeys('A')
+" seems wrong
+"  call s:insertInboxTodo('')
+"  call feedkeys('A')
 endfunction
 
 function! today#Prompt() abort
@@ -112,22 +114,22 @@ function! today#Prompt() abort
   endif
 endfunction
 
-function! today#Add(todo)  abort
+function! today#Add(todo) abort
   call s:insertTodoUnderCursor(a:todo)
   call feedkeys('A')
 endfunction
 
-function! s:insertTodoUnderCursor(todo)  abort
+function! s:insertTodoUnderCursor(todo) abort
   " insert a new todo
-  execute "normal! ^i- [ ] ".a:todo."\<cr>\<esc>k"
+  execute "normal! ^i".s:new_todo.a:todo."\<cr>\<esc>k"
 endfunction
 
-function! s:insertTodoInHeading(heading, todo)  abort
+function! s:insertTodoInHeading(heading, todo) abort
   " insert a new todo
-  execute "normal! gg/".a:heading."\<cr>jj^i- [ ] ".a:todo."\<cr>\<esc>k"
+  execute "normal! gg/".a:heading."\<cr>jj^i".s:new_todo.a:todo."\<cr>\<esc>k"
 endfunction
 
-function! s:insertInboxTodo(todo)  abort
+function! s:insertInboxTodo(todo) abort
   call s:insertTodoInHeading('# Inbox', a:todo)
 endfunction
 
@@ -163,46 +165,61 @@ function! today#NewFile() abort
   endif
   echom '\rname: ' . name
   execute ':e ' . s:getDir()  . '/' . fname
-  execute 'normal! i# '. name . "\n\n - [ ] "
+  execute 'normal! i# '. name . "\n\n".s:new_todo
 endfunction
 
 function! today#Refile() abort
-  " delete to the 't' register
-  execute 'delete t'
-  execute 'w'
   call fzf#run({'source': 'ls '.s:getDir(), 'sink': function('s:fzfSinkRefile'), 'left': '25%'})
 endfunction
 
-function! today#FzTodo() abort
-  call fzf#run({'source': 'ls '.s:getDir(), 'sink': function('s:fzfSink'), 'left': '25%'})
+function! s:fzfSinkRefile(arg) abort
+  " delete to the 't' register and open file
+  function! s:sinkWrapper(heading) closure
+    execute 'delete t'
+    execute 'w'
+    execute 'e '. s:getFile(a:arg)
+    call s:fzfSinkPasteToHeading(a:heading)
+  endfunction
+  call fzf#run({'source': 'today headings '.s:getFile(a:arg), 'sink': function('s:sinkWrapper'), 'left': '25%'})
+  if has("nvim")
+    call feedkeys('i')
+  else
+    startinsert
+  endif
 endfunction
 
-function! s:fzfSinkRefile(arg) abort
-  execute 'e '. s:getFile(a:arg)
-  execute 3
+function! s:fzfSinkPasteToHeading(heading) abort
+  echom 'heading: '. a:heading
+  let [lnum, col] = searchpos('^' . escape(a:heading, '\'), 'nw')
   " paste from the 't' register - see today#Refile()
-  normal! "tp
-  call feedkeys('A')
+  if (lnum > 0)
+    execute ':'+ (lnum+1)
+    normal! "tp
+  endif
+endfunction
+
+function! today#Open() abort
+  call fzf#run({'source': 'ls '.s:getDir(), 'sink': function('s:fzfSink'), 'left': '25%'})
 endfunction
 
 function! s:fzfSink(arg) abort
   execute 'e '. s:getFile(a:arg)
   " insert a new todo on third line
-  call append(2, ' - [ ] ')
+  " call append(2, s:new_todo)
   " go to third line
   execute 3
   " enter insert mode at end of line
-  call feedkeys('A')
+  " call feedkeys('A')
 endfunction
 
 " Find heading
 function! today#Move() abort
   "let headings = today#ChooseHeading()
   let filename = expand('%:p') 
-  return fzf#run({'source': 'today headings '.filename, 'sink': function('s:fzfMoveToHeading'), 'left': '25%'})
+  return fzf#run({'source': 'today headings '.filename, 'sink': function('s:fzfSinkMoveToHeading'), 'left': '25%'})
 endfunction
 
-function! s:fzfMoveToHeading(heading) abort
+function! s:fzfSinkMoveToHeading(heading) abort
   echom 'heading: '. a:heading
   let [lnum, col] = searchpos('^' . escape(a:heading, '\'), 'nw')
   "echo 'moving to line ' . lnum
@@ -215,7 +232,7 @@ function! s:fzfMoveToHeading(heading) abort
 endfunction
 
 " find headings
-function! today#ChooseHeading() abort
+function! today#NewTodoForHeading() abort
   let filename = expand('%:p') 
   return fzf#run({'source': 'today headings '.filename, 'sink': function('s:fzfSinkHeading'), 'left': '25%'})
 endfunction
