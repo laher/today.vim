@@ -28,9 +28,19 @@ function! s:loadConfig() abort
   return result
 endfunction
 
+function! today#ChooseStatus() abort
+  call fzf#run({'source': 'today statuses', 'sink': function('s:sinkStatus'), 'left': '25%'})
+endfunction
+
+function! s:sinkStatus(match) abort
+  let line = getline('.')
+  let symbol = split(a:match)[0]
+  let line = substitute(line, '\[.\]', '[' . symbol . ']', '')
+  call setline('.', line)
+endfunction
+
 function! today#Toggle() abort
   let line = getline('.')
-
   if(match(line, '\[.\]') != -1)
     let states = copy(s:todo_states)
     for state in states
@@ -49,10 +59,10 @@ function! today#Toggle() abort
 endf
 
 function! today#Done() abort
-  call today#Set('x')
+  call today#SetState('x')
 endfunction
 
-function! today#Set(state) abort
+function! today#SetState(state) abort
   let line = getline('.')
 
   if(match(line, '\[.\]') != -1)
