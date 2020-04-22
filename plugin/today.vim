@@ -20,7 +20,7 @@ if !hasmapto('<Plug>TodaySplit', 'n')
 endif
 
 
-if &rtp =~ 'fzm.vim'
+if &rtp =~ 'fuzzy-menu.vim'
   call fzm#Add('Today', {'exec': 'call today#OpenToday()'})
   call fzm#Add('Today: Open', {'exec': 'call today#Open()'})
   call fzm#Add('Today: Prompt', {'exec': 'call today#Prompt()'})
