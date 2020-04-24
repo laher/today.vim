@@ -20,18 +20,18 @@ if !hasmapto('<Plug>TodaySplit', 'n')
 endif
 
 
-if &rtp =~ 'fuzzy-menu.vim'
-  call fzm#Add('Today', {'exec': 'call today#OpenToday()'})
-  call fzm#Add('Today: Open', {'exec': 'call today#Open()'})
-  call fzm#Add('Today: Prompt', {'exec': 'call today#Prompt()'})
-  call fzm#Add('Today: Split', {'exec': 'call today#Split()'})
-  call fzm#Add('Today: Rollover', {'exec': 'call today#Rollover()'})
-  call fzm#Add('Today: File Chooser', {'exec': 'call today#FzTodo()', 'mode': 'insert'})
-  call fzm#Add('Today: New File', {'exec': 'call today#NewFile()', 'mode': 'insert'})
-  call fzm#Add('Today: Init', {'exec': 'call today#Init()'})
+if &rtp =~ 'fuzzymenu.vim'
+  call fuzzymenu#Add('Today', {'exec': 'call today#OpenToday()'})
+  call fuzzymenu#Add('Today: Open', {'exec': 'call today#Open()'})
+  call fuzzymenu#Add('Today: Prompt', {'exec': 'call today#Prompt()'})
+  call fuzzymenu#Add('Today: Split', {'exec': 'call today#Split()'})
+  call fuzzymenu#Add('Today: Rollover', {'exec': 'call today#Rollover()'})
+  call fuzzymenu#Add('Today: File Chooser', {'exec': 'call today#FzTodo()', 'mode': 'insert'})
+  call fuzzymenu#Add('Today: New File', {'exec': 'call today#NewFile()', 'mode': 'insert'})
+  call fuzzymenu#Add('Today: Init', {'exec': 'call today#Init()'})
 
   """ Only for markdown files
-  call fzm#Add('Today: Refile', {'exec': 'call today#Refile()', 'mode': 'insert', 'for': 'md'})
-  call fzm#Add('Today: Toggle', {'exec': 'call today#Toggle()', 'for': 'md'})
+  call fuzzymenu#Add('Today: Refile', {'exec': 'call today#Refile()', 'mode': 'insert', 'for': 'md'})
+  call fuzzymenu#Add('Today: Toggle', {'exec': 'call today#Toggle()', 'for': 'md'})
 endif
 

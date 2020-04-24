@@ -28,18 +28,18 @@ Use one of the following commands to open the 'today' markdown file and add a TO
 These will add an entry in `g:today_dir` . '/today.md'.
 
 
-### Usage with FZF/FZM
+### Usage with FZF/fuzzymenu
 
-`today.vim` is compatible with `fzm.vim` (a fuzzy menu system). 
-Use via fzm is recommended, for learnability. 
+`today.vim` is compatible with `fuzzymenu.vim` (a fuzzy menu system). 
+Use via fuzzymenu is recommended, for learnability. 
 Otherwise, I recommend just mapping some key combinations.
 
-For installing today.vim alongside fzf/fzm:
+For installing today.vim alongside fzf & fuzzymenu.vim:
 
 ```viml
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'laher/fzm.vim'
+Plug 'laher/fuzzymenu.vim'
 Plug 'prabirshrestha/async.vim'
 Plug 'laher/today.vim', { 'do': ':TodayUpdate' }
 ```
